@@ -50,7 +50,7 @@ import java.util.List;
                                     authenticated()).
                     authenticationProvider(authenticationProvider)
                     //.httpBasic(Customizer.withDefaults()) //use for browser and postman
-                    .formLogin(Customizer.withDefaults()) //use for browser
+                    //.formLogin(Customizer.withDefaults()) //use for browser
                     //.sessionManagement(Customizer.withDefaults())
                     .sessionManagement(session ->
                             session.sessionCreationPolicy(
