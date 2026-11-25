@@ -17,24 +17,28 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
+    /*@Bean
     public SecurityFilterChain mySecurityFilterChain1(
                 HttpSecurity http,AuthenticationProvider authenticationProvider) throws Exception {
 
         return http
-                .csrf(csrf -> csrf.disable())
+                //.csrf(csrf -> csrf.disable())
+                .csrf(csrff ->csrff.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .authorizeHttpRequests(auth ->
                                                                     auth.anyRequest().
                                                                             authenticated()).
                 authenticationProvider(authenticationProvider)
-                .httpBasic(Customizer.withDefaults())
+               // .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults())
+                .sessionManagement(Customizer.withDefaults())
                 .build();
-    }
+    }*/
 
     @Bean
     public PasswordEncoder passwordEncoder() {
