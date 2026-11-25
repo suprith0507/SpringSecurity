@@ -5,6 +5,7 @@ package com.example.SpringSecurity.configs;
 
 
 import com.example.SpringSecurity.services.CustomerServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
@@ -21,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -31,26 +34,35 @@ import java.util.List;
 
 @Configuration
     @EnableWebSecurity
+@RequiredArgsConstructor
     public class SessionCSRFDemo {
-
+    private final JWTAuthenticationFilter jwtAuthenticationFilter;
         @Bean
         public SecurityFilterChain mySecurityFilterChain1(
                 HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
 
             return http
-                    //.csrf(csrf -> csrf.disable())
-                    .cors(Customizer.withDefaults())
-                    .csrf(csrff ->csrff.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                    .csrf(csrf -> csrf.disable()) //disable csrf for jwt as it is not required
+                    //.cors(Customizer.withDefaults())
+                    //.csrf(csrff ->csrff.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                     .authorizeHttpRequests(auth ->
                             auth.anyRequest().
                                     authenticated()).
                     authenticationProvider(authenticationProvider)
                     //.httpBasic(Customizer.withDefaults()) //use for browser and postman
                     .formLogin(Customizer.withDefaults()) //use for browser
-                    .sessionManagement(Customizer.withDefaults())
+                    //.sessionManagement(Customizer.withDefaults())
+                    .sessionManagement(session ->
+                            session.sessionCreationPolicy(
+                                    SessionCreationPolicy
+                                            .STATELESS
+                            ))//make it stateless for jwt based authentication
                     .addFilterAfter(
                             new CsrfCookieFilter(),
                             CsrfFilter.class)
+                    .addFilterBefore(
+                            jwtAuthenticationFilter,
+                            UsernamePasswordAuthenticationFilter.class)
                     .build();
         }
 

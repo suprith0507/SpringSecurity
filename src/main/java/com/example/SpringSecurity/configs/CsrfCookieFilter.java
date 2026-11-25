@@ -12,7 +12,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-public class CsrfCookieFilter extends OncePerRequestFilter {
+public class
+CsrfCookieFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
