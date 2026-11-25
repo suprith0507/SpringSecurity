@@ -29,8 +29,9 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth ->
-                        auth.anyRequest().
-                                authenticated()).authenticationProvider(authenticationProvider)
+                                                                    auth.anyRequest().
+                                                                            authenticated()).
+                authenticationProvider(authenticationProvider)
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }
