@@ -10,6 +10,9 @@ import com.example.SpringSecurity.repositories.CustomerRepository;
 import com.example.SpringSecurity.services.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerServiceImpl implements CustomerService {
+public class CustomerServiceImpl implements CustomerService, UserDetailsService {
 
     private final CustomerRepository customerRepository;
 
@@ -181,5 +184,11 @@ public class CustomerServiceImpl implements CustomerService {
 
         customerRepository.delete(
                 customerEntity);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return customerRepository.findByUsername(username).orElseThrow( ()->new UsernameNotFoundException("Customer not found"));
+
     }
 }

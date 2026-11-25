@@ -4,6 +4,7 @@ package com.example.SpringSecurity.services;
 
 import com.example.SpringSecurity.dtos.CustomerRequestDTO;
 import com.example.SpringSecurity.dtos.CustomerResponseDTO;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 

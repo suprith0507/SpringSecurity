@@ -3,7 +3,11 @@ package com.example.SpringSecurity.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.envers.Audited;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -26,7 +30,7 @@ import java.util.List;
                 "transactions"
         }//Collections and bidirectional relationships should not participate in equality checks.
 )
-public class CustomerEntity extends AuditableBaseEntity {
+public class CustomerEntity extends AuditableBaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -101,4 +105,40 @@ public class CustomerEntity extends AuditableBaseEntity {
             orphanRemoval = true
     )
     private List<TransactionEntity> transactions;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of( new SimpleGrantedAuthority(
+                "ROLE_" + role));
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 }
