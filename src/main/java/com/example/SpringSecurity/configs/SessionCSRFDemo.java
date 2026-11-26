@@ -37,6 +37,8 @@ import java.util.List;
 @RequiredArgsConstructor
     public class SessionCSRFDemo {
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
+    private final JWTAuthenticationEntryPoint authenticationEntryPoint;
+    private final JWTAccessDeniedHandler accessDeniedHandler;
         @Bean
         public SecurityFilterChain mySecurityFilterChain1(
                 HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
@@ -46,7 +48,7 @@ import java.util.List;
                     //.cors(Customizer.withDefaults())
                     //.csrf(csrff ->csrff.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                     .authorizeHttpRequests(auth ->
-                            auth.anyRequest().
+                            auth.requestMatchers("/auth/login").permitAll().anyRequest().
                                     authenticated()).
                     authenticationProvider(authenticationProvider)
                     //.httpBasic(Customizer.withDefaults()) //use for browser and postman
@@ -63,12 +65,17 @@ import java.util.List;
                     .addFilterBefore(
                             jwtAuthenticationFilter,
                             UsernamePasswordAuthenticationFilter.class)
+                    /*.exceptionHandling(ex -> ex
+                            .accessDeniedHandler(accessDeniedHandler)
+                            .authenticationEntryPoint(authenticationEntryPoint))*/
                     .build();
         }
 
        //password encoder and other stuff are picked up from the other config file
         //trying to explain JsessionID and CSRF token concept for stateful authentication.
-
+        //exceptions happing in filters and security layer can be passed to globalexception handler in controller using HandlerExceptionResolver.
+     //HandlerExceptionResolver acts as a postman and sends the exceptions from security layer to controller.
+    //Exceptions in security layer can be handled direclty by using AuthenticationEntryPoint and AccessDeniedHandler directly in filter without passing them to controller.
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

@@ -8,14 +8,17 @@ import com.example.SpringSecurity.exceptions.CustomerNotFoundException;
 import com.example.SpringSecurity.modelbeans.APIResponse;
 
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -173,6 +176,52 @@ public class GlobalExceptionHandler {
                 .body(apiResponse);
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<APIResponse<Object>> handleAuthenticationException(
+            AuthenticationException ex,
+            HttpServletRequest request) {
+        System.out.println("AuthenticationException caught");
+        ErrorResponseDTO errorResponse = ErrorResponseDTO.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .message(ex.getLocalizedMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        APIResponse<Object> apiResponse = APIResponse.builder()
+                .data(null)
+                .error(errorResponse)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(apiResponse);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<APIResponse<Object>> handleJWTException(
+            Exception ex,
+            HttpServletRequest request) {
+
+        ErrorResponseDTO errorResponse = ErrorResponseDTO.builder()
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .message(ex.getLocalizedMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        APIResponse<Object> apiResponse = APIResponse.builder()
+                .data(null)
+                .error(errorResponse)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(apiResponse);
+    }
+
     /**
      * ============================================================
      * ALL UNHANDLED SYSTEM EXCEPTIONS
@@ -189,6 +238,7 @@ public class GlobalExceptionHandler {
                 .message("Unexpected Error Occurred")
                 .path(request.getRequestURI())
                 .build();
+        System.out.println("AuthenticationException caught");
 
         APIResponse<Object> apiResponse = APIResponse.builder()
                 .data(null)
