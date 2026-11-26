@@ -68,6 +68,17 @@ import java.util.List;
                     /*.exceptionHandling(ex -> ex
                             .accessDeniedHandler(accessDeniedHandler)
                             .authenticationEntryPoint(authenticationEntryPoint))*/
+                    .logout(logout -> logout
+                            .logoutUrl("/logout")
+                            .invalidateHttpSession(true)
+                            .clearAuthentication(true))
+                    .headers(headers -> headers
+                            .contentTypeOptions(Customizer.withDefaults())
+                            .frameOptions(frame -> frame.deny())
+                            .httpStrictTransportSecurity(hsts -> hsts
+                                    .includeSubDomains(true)
+                                    .maxAgeInSeconds(31536000)
+                            ))
                     .build();
         }
 
