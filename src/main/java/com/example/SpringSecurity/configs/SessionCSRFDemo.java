@@ -44,9 +44,9 @@ import java.util.List;
                 HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
 
             return http
-                    .csrf(csrf -> csrf.disable()) //disable csrf for jwt as it is not required
-                    //.cors(Customizer.withDefaults())
-                    //.csrf(csrff ->csrff.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                    .csrf(csrf -> csrf.disable()) //disable csrf for jwt as it is not required.csrf for only browsers with sessionid based authentication.
+                    //.cors(Customizer.withDefaults()) //protects from CORS related attacks
+                    //.csrf(csrff ->csrff.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())) //protects from csrf related attacks
                     .authorizeHttpRequests(auth ->
                             auth.requestMatchers("/auth/login").permitAll().anyRequest().
                                     authenticated()).
@@ -59,6 +59,7 @@ import java.util.List;
                                     SessionCreationPolicy
                                             .STATELESS
                             ))//make it stateless for jwt based authentication
+                              //we can configure it to return JSESSIONIDs for session based authentication systems
                     .addFilterAfter(
                             new CsrfCookieFilter(),
                             CsrfFilter.class)
@@ -67,7 +68,7 @@ import java.util.List;
                             UsernamePasswordAuthenticationFilter.class)
                     /*.exceptionHandling(ex -> ex
                             .accessDeniedHandler(accessDeniedHandler)
-                            .authenticationEntryPoint(authenticationEntryPoint))*/
+                            .authenticationEntryPoint(authenticationEntryPoint))*/ //to handle authentication and authorization exceptions direclty in security layer.
                     .logout(logout -> logout
                             .logoutUrl("/logout")
                             .invalidateHttpSession(true)
@@ -77,8 +78,18 @@ import java.util.List;
                             .frameOptions(frame -> frame.deny())
                             .httpStrictTransportSecurity(hsts -> hsts
                                     .includeSubDomains(true)
-                                    .maxAgeInSeconds(31536000)
-                            ))
+                                    .maxAgeInSeconds(31536000)   //avoids clickjacking
+                            )
+                            .contentSecurityPolicy(csp ->
+                                    csp.policyDirectives(
+                                            "default-src 'self'; " +
+                                                    "script-src 'self'; " +
+                                                    "object-src 'none'; " +
+                                                    "base-uri 'self'; " +
+                                                    "frame-ancestors 'none'" //avoids XSS attacks
+                                    )
+                            )
+                    )
                     .build();
         }
 
